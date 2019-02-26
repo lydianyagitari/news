@@ -129,24 +129,26 @@ $(document).ready(function(){
   });
 
   // when scrape button is clicked
-  $(document).on("click", "#scrape-button", function(){
+  $('#scrape-button').on("click", function(){
+    console.log('was i clicked')
     $.ajax({
       method: "GET",
       url: "/scrape" 
       
-    }).then(function(data) {
+    }
+    
+    ).then(function(data) {
       // Log the response
-      console.log("hello")
-      console.log(data);
+      console.log('this is where i get the data----', data);
 
       // load the articels onto the page
-      displayArticles()
 
       $("#scrapeModalLabel").text("You successfully scraped new articles")
       $("#scrapeModalBody").text("Woohoo!")
 
       $("#scrapeModal").modal("show");
 
+      displayArticles()
     });
   });
 
