@@ -129,8 +129,8 @@ $(document).ready(function(){
   });
 
   // when scrape button is clicked
-  $('#scrape-button').on("click", function(){
-    console.log('was i clicked')
+  $(document).on("click",'#scrape-button', function(){
+    console.log('was i clicked');
     $.ajax({
       method: "GET",
       url: "/scrape" 
