@@ -31,11 +31,9 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/news";
 
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
-// mongoose.Promise = Promise;
-mongoose.connect(MONGODB_URI);
-// useMongoClient: true
-//  });
-
+mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+mongoose.set('useCreateIndex', true)
 // Routes
 
 app.get("/", function(req, res) {
@@ -55,39 +53,47 @@ app.get("/scrape", function(req, res) {
 
     var $ = cheerio.load(response.data);
 
-
+    // const options = {
+    //   uri:"https://www.nytimes.com/section/technology",
+    //   transform: function (body) {
+    //     return cheerio.load(body);
+    //   }
+    // };
     // Now, we grab every h2 within an article tag, and do the following:
 
         let counter = 0;
         // var dataArr = [];
-    $("article h2").each(function(i, element) {
+    $("article").each(function(i, element) {
       console.log('this is it', element.children)
       // Save an empty result object
       var result = {};
       
-      var storyDiv = $(this).children("div.story-body")
-      result.url = storyDiv.children("a").attr("href")
-      var metaDiv = storyDiv.children("a").children("div.story-meta")
-      result.headline = metaDiv.children("h2").text()
-      result.summary = metaDiv.children("p.summary").text();
+      // var storyDiv = $(this).children("div.story-body")
+      // result.url = storyDiv.children("a").attr("href")
+      // var metaDiv = storyDiv.children("a").children("div.story-meta")
+      // result.headline = metaDiv.children("h2").text()
+      // result.summary = metaDiv.children("p.summary").text();
+
+      result.headline = $(this).find('h2').text()
+      result.url = $(this).find('h2 a').attr('href');
+      result.summary = $(this).children().children('p').text()
+      
+
 
       // Create a new Article using the `result` object built from scraping
-     if (result.headline && result.url){
+     if (result.headline && result.url && result.summary){
 
       db.Article.create(result)
         .then(function(dbArticle) {
           // View the added result in the console
           console.log(dbArticle);
-          counter++;
+
           // dataArr.push(dbArticle)
-          console.log("added " + counter + " new items")
         })
         .catch(function(err) {
           // If an error occurred, send it to the client
           return res.json(err);
         });
-        // console.log(result)
-        // console.log("added " + incr + " new items")
       }
           
 
@@ -95,7 +101,7 @@ app.get("/scrape", function(req, res) {
 
 
     // If we were able to successfully scrape and save an Article, send a message to the client
-    res.sendFile(path.join(__dirname, "public/index.html"));
+    res.sendFile('Scrape was completed');
 
   });
 });
@@ -189,6 +195,4 @@ app.post("/articles/:id", function(req, res) {
 
 
 // Start the server
-app.listen(PORT, function() {
-  console.log("App running on port " + PORT + "!");
-});
+app.listen(process.env.PORT || 3000, () => console.log('Server has started'));

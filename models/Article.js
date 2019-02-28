@@ -9,7 +9,7 @@ var ArticleSchema = new Schema({
   // `headline` is required and of type String
   headline: {
     type: String,
-    unique: true
+    require: true
     // ,
     // required: true
   },
